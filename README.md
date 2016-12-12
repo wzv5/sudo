@@ -1,6 +1,8 @@
 ﻿sudo for Windows
 ================
 
+[![Build status](https://ci.appveyor.com/api/projects/status/2d880hsxvy2levdm/branch/master?svg=true)](https://ci.appveyor.com/project/wzv5/sudo/branch/master)
+
 ## 特性
 
 * 重定向输入输出到当前控制台窗口，如Linux般顺滑体验
