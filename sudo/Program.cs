@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Principal;
 using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.IO.MemoryMappedFiles;
-using System.Diagnostics;
-using System.Runtime.Serialization.Formatters.Binary;
 
 // https://raw.githubusercontent.com/lukesampson/psutils/efcd212cf7/sudo.ps1
 
