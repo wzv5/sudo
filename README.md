@@ -9,6 +9,9 @@
 * 自动检测目标程序是否为GUI PE，如果是则以普通方式运行
 * 自动检测当前用户是否位于 Administrators 用户组
 
+## 下载
+[sudo.exe](https://github.com/wzv5/sudo/releases/latest)
+
 ## 使用方法
 
 `
