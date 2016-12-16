@@ -19,6 +19,9 @@ namespace sudo
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
         public static extern bool FreeConsole();
 
+        [DllImport("kernel32.dll")]
+        public static extern bool SetConsoleCtrlHandler(IntPtr HandlerRoutine, bool Add);
+
         public static bool IsInAdminGroup()
         {
             var identity = WindowsIdentity.GetCurrent();
@@ -49,9 +52,8 @@ namespace sudo
         {
             var paths = new[] { Environment.CurrentDirectory }
                     .Concat(Environment.GetEnvironmentVariable("PATH").Split(';'));
-            var extensions = new[] { String.Empty }
-                    .Concat(Environment.GetEnvironmentVariable("PATHEXT").ToLower().Split(';')
-                               .Where(e => e.StartsWith(".")));
+            var extensions = Environment.GetEnvironmentVariable("PATHEXT").ToLower().Split(';')
+                               .Where(e => e.StartsWith("."));
             var combinations = paths.SelectMany(x => extensions,
                     (path, extension) => Path.Combine(path, filename + extension));
             return combinations.FirstOrDefault(File.Exists);
@@ -110,7 +112,7 @@ namespace sudo
                 return 1;
             }
             var fullpath = WhereSearch(args[0]);
-            //Console.WriteLine("* fullpath：[" + fullpath + "]");
+            Console.WriteLine("* fullpath：[" + fullpath + "]");
             if (!File.Exists(fullpath))
             {
                 Console.Error.WriteLine("cannot find specific file");
@@ -182,6 +184,7 @@ namespace sudo
 
         static int Main(string[] args)
         {
+            SetConsoleCtrlHandler(IntPtr.Zero, true);
             if (args.Length >= 3 && args[0] == "-a")
             {
                 return AdminMain(args);
