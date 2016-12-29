@@ -119,62 +119,50 @@ namespace sudo
                 Console.Error.WriteLine("cannot find specific file");
                 return 1;
             }
-            if (IsGuiExe(fullpath))
+
+            var p = new Process();
+            var si = p.StartInfo;
+            si.FileName = Process.GetCurrentProcess().MainModule.FileName;
+            si.Arguments = string.Format("-a {0} {1}", Process.GetCurrentProcess().Id, Serialize(new[] { fullpath, Environment.CurrentDirectory }.Concat(args.Skip(1)).ToArray()));
+            si.Verb = "runas";
+            si.WindowStyle = ProcessWindowStyle.Hidden;
+            try
             {
-                var p = new Process();
-                var si = p.StartInfo;
-                si.FileName = fullpath;
-                si.Arguments = ConcatArgs(args.Skip(1).ToArray());
-                si.Verb = "runas";
-                try
-                {
-                    p.Start();
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine(e.Message);
-                    return 1;
-                }
-                return 0;
+                p.Start();
             }
-            else
+            catch (Exception e)
             {
-                var p = new Process();
-                var si = p.StartInfo;
-                si.FileName = Process.GetCurrentProcess().MainModule.FileName;
-                si.Arguments = string.Format("-a {0} {1}", Process.GetCurrentProcess().Id, Serialize(new[] { fullpath }.Concat(args.Skip(1)).ToArray()));
-                si.Verb = "runas";
-                si.WindowStyle = ProcessWindowStyle.Hidden;
-                try
-                {
-                    p.Start();
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine(e.Message);
-                    return 1;
-                }
-                p.WaitForExit();
-                return p.ExitCode;
+                Console.Error.WriteLine(e.Message);
+                return 1;
             }
+            p.WaitForExit();
+            return p.ExitCode;
         }
 
         // sudo.exe -a [parent pid] [serialized data]
         public static int AdminMain(string[] args)
         {
-            FreeConsole();
-            AttachConsole(uint.Parse(args[1]));
-
             var a = Deserialize(args[2]);
             var p = new Process();
             var si = p.StartInfo;
             si.FileName = a[0];
-            si.Arguments = ConcatArgs(a.Skip(1).ToArray());
-            si.WindowStyle = ProcessWindowStyle.Hidden;
+            si.Arguments = ConcatArgs(a.Skip(2).ToArray());
+            si.WorkingDirectory = a[1];
             si.UseShellExecute = false;
-            p.Start();
-            p.WaitForExit();
-            return p.ExitCode;
+            if (IsGuiExe(a[0]))
+            {
+                p.Start();
+                return 0;
+            }
+            else
+            {
+                FreeConsole();
+                AttachConsole(uint.Parse(args[1]));
+                si.WindowStyle = ProcessWindowStyle.Hidden;
+                p.Start();
+                p.WaitForExit();
+                return p.ExitCode;
+            }
         }
 
         public static int PrintHelp(string[] args)
