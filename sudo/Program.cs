@@ -145,12 +145,12 @@ namespace sudo
             var a = Deserialize(args[2]);
             var p = new Process();
             var si = p.StartInfo;
-            si.FileName = a[0];
-            si.Arguments = ConcatArgs(a.Skip(2).ToArray());
             si.WorkingDirectory = a[1];
             si.UseShellExecute = false;
             if (IsGuiExe(a[0]))
             {
+                si.FileName = a[0];
+                si.Arguments = ConcatArgs(a.Skip(2).ToArray());
                 p.Start();
                 return 0;
             }
@@ -158,6 +158,8 @@ namespace sudo
             {
                 FreeConsole();
                 AttachConsole(uint.Parse(args[1]));
+                si.FileName = Path.Combine(Environment.SystemDirectory, "cmd.exe");
+                si.Arguments = "/c " + ConcatArgs(new [] { a[0] }.Concat(a.Skip(2)).ToArray());
                 si.WindowStyle = ProcessWindowStyle.Hidden;
                 p.Start();
                 p.WaitForExit();
