@@ -30,20 +30,27 @@ namespace sudo
 
         public static bool IsGuiExe(string exepath)
         {
-            using (var s = File.OpenRead(exepath))
+            try
             {
-                using (var r = new BinaryReader(s))
+                using (var s = File.OpenRead(exepath))
                 {
-                    if (r.ReadByte() != 0x4d && r.ReadByte() != 0x5a)
+                    using (var r = new BinaryReader(s))
                     {
-                        return false;
+                        if (r.ReadByte() != 0x4d && r.ReadByte() != 0x5a)
+                        {
+                            return false;
+                        }
+                        s.Seek(0x3c, SeekOrigin.Begin);
+                        var e_lfanew = r.ReadUInt32();
+                        s.Seek(e_lfanew + 0x5c, SeekOrigin.Begin);
+                        var subsystem = r.ReadUInt16();
+                        return subsystem == 2;  // IMAGE_SUBSYSTEM_WINDOWS_GUI
                     }
-                    s.Seek(0x3c, SeekOrigin.Begin);
-                    var e_lfanew = r.ReadUInt32();
-                    s.Seek(e_lfanew + 0x5c, SeekOrigin.Begin);
-                    var subsystem = r.ReadUInt16();
-                    return subsystem == 2;  // IMAGE_SUBSYSTEM_WINDOWS_GUI
                 }
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
 
