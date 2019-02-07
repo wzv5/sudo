@@ -119,13 +119,14 @@ namespace sudo
                 Console.Error.WriteLine("you must be an administrator to run sudo");
                 return 1;
             }
+
             var fullpath = WhereSearch(args[0]);
-            Console.WriteLine("* fullpath：[" + fullpath + "]");
             if (!File.Exists(fullpath))
             {
-                Console.Error.WriteLine("cannot find specific file");
-                return 1;
+                Console.WriteLine("* cannot find specific file");
+                fullpath = args[0];
             }
+            Console.WriteLine("* fullpath：[" + fullpath + "]");
 
             var p = new Process();
             var si = p.StartInfo;
